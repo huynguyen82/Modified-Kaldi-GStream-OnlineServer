@@ -1,0 +1,57 @@
+# You have to download TEDLIUM "online nnet2" models in order to use this sample
+# Run download-tedlium-nnet2.sh in 'test/models' to download them.
+use-nnet2: True
+decoder:
+    use-threaded-decoder:  True
+    model : model/final.mdl
+    nnet-mode: 3
+    word-syms : model/graph-small/words.txt
+    fst : model/graph-small/HCLG.fst
+    mfcc-config : model/conf/mfcc.conf
+    ivector-extraction-config : model/conf/ivector_extractor.conf
+    min-active: 1000
+    max-active: 10000
+    beam: 21 #
+    lattice-beam: 6 # 11
+    inverse-scale: False
+    acoustic-scale: 1.2 # AM=1/0.9~1.1
+    phone-syms: model/phones.txt
+    do-endpointing : True
+    endpoint-silence-phones : "1:2:3:4:5:26:27:28:29"
+    silence-phones: "1:2:3:4:5:6:7:8:9:10:11:12:13:14:15:16:17:18:19:20:21:22:23:24:25:26:27:28:29"
+    traceback-period-in-secs: 0.3
+    chunk-length-in-secs: 0.25
+    num-nbest: 2
+    frame-subsampling-factor: 3
+    # For rescoring
+    lmwt-scale: 1.0
+    lm-fst : model/graph-small/G.fst
+    big-lm-const-arpa: model/graph-small/G.carpa
+
+out-dir: tmp
+silence-timeout:  5
+use-vad: True
+vad-threshold: 0.0004
+
+# Just a sample post-processor that appends "." to the hypothesis
+#post-processor: perl -npe 'BEGIN {use IO::Handle; STDOUT->autoflush(1);} s/(.*)/\1./;'
+
+# A sample full post processor that add a confidence score to 1-best hyp and deletes other n-best hyps
+#full-post-processor: ./kaldi-gstreamer-server/sample_full_post_processor.py
+full-post-processor: ./sample_full_post_processor.py
+
+logging:
+    version : 1
+    disable_existing_loggers: False
+    formatters:
+        simpleFormater:
+            format: '%(asctime)s - %(levelname)7s: %(name)10s: %(message)s'
+            datefmt: '%Y-%m-%d %H:%M:%S'
+    handlers:
+        console:
+            class: logging.StreamHandler
+            formatter: simpleFormater
+            level: DEBUG
+    root:
+        level: DEBUG
+        handlers: [console]
